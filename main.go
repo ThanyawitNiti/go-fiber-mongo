@@ -23,11 +23,12 @@ var mg MongoInstance
 
 const dbName = "fiber-hrms"
 
-const mongoURI = "mongodb://localhost:27017" + dbName
+const mongoURI = "mongodb://localhost:27017/" + dbName
 
 // const mongoURI = "mongodb+srv://thanyawit:Q5rvmuP6FYHhCRaX@cluster0.zff25.mongodb.net/golang_db?retryWrites=true&w=majority&appName=Cluster0" + dbName
 
 type Employee struct {
+	_      struct{}
 	ID     string  `json:"id,omitempty" bson:"_id,omitempty"`
 	Name   string  `json:"name"`
 	Salary float64 `json:"salary"`
@@ -123,9 +124,9 @@ func main() {
 		update := bson.D{
 			{Key: "$set",
 				Value: bson.D{
-					{key: "name", Value: employee.Name},
-					{key: "age", Value: employee.Age},
-					{key: "salary", Value: employee.Salary},
+					{Key: "name", Value: employee.Name},
+					{Key: "age", Value: employee.Age},
+					{Key: "salary", Value: employee.Salary},
 				},
 			},
 		}
@@ -140,7 +141,7 @@ func main() {
 		}
 		employee.ID = idParam
 
-		return c.SendStatus(200).JSON(employee)
+		return c.Status(200).JSON(employee)
 	})
 
 	app.Delete("/employee/:id", func(c *fiber.Ctx) error {
@@ -163,7 +164,7 @@ func main() {
 			return c.SendStatus(404)
 		}
 
-		return c.SendStatus(200).JSON("recoed deleted")
+		return c.Status(200).JSON("recoed deleted")
 	})
 
 	app.Listen(":3000")

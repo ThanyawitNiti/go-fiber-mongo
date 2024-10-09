@@ -25,8 +25,6 @@ const dbName = "fiber-hrms"
 
 const mongoURI = "mongodb://localhost:27017/" + dbName
 
-// const mongoURI = "mongodb+srv://thanyawit:Q5rvmuP6FYHhCRaX@cluster0.zff25.mongodb.net/golang_db?retryWrites=true&w=majority&appName=Cluster0" + dbName
-
 type Employee struct {
 	_      struct{}
 	ID     string  `json:"id,omitempty" bson:"_id,omitempty"`
@@ -36,6 +34,7 @@ type Employee struct {
 }
 
 func Connect() error { // connect golang to db
+
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -131,7 +130,7 @@ func main() {
 			},
 		}
 
-		mg.Db.Collection("employee").FindOneAndUpdate(c.Context(), query, update).Err()
+		mg.Db.Collection("employees").FindOneAndUpdate(c.Context(), query, update).Err()
 
 		if err != nil {
 			if err == mongo.ErrNoDocuments {
@@ -145,17 +144,20 @@ func main() {
 	})
 
 	app.Delete("/employee/:id", func(c *fiber.Ctx) error {
-
-		employeeID, err := primitive.ObjectIDFromHex(c.Params("id"))
-
+		idParam := c.Params("id")
+		log.Print(idParam)
+		employeeID, err := primitive.ObjectIDFromHex(idParam)
+		log.Print(employeeID)
 		if err != nil {
 			return c.SendStatus(400)
 		}
 
 		query := bson.D{{Key: "_id", Value: employeeID}}
+		log.Print(query)
 
-		deleteResult, err := mg.Db.Collection("employee").DeleteOne(c.Context(), query)
+		deleteResult, err := mg.Db.Collection("employees").DeleteOne(c.Context(), query)
 
+		log.Print(deleteResult.DeletedCount)
 		if err != nil {
 			return c.SendStatus(500)
 		}

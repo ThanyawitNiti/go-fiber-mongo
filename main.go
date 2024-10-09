@@ -145,19 +145,17 @@ func main() {
 
 	app.Delete("/employee/:id", func(c *fiber.Ctx) error {
 		idParam := c.Params("id")
-		log.Print(idParam)
+
 		employeeID, err := primitive.ObjectIDFromHex(idParam)
-		log.Print(employeeID)
+
 		if err != nil {
 			return c.SendStatus(400)
 		}
 
 		query := bson.D{{Key: "_id", Value: employeeID}}
-		log.Print(query)
 
 		deleteResult, err := mg.Db.Collection("employees").DeleteOne(c.Context(), query)
 
-		log.Print(deleteResult.DeletedCount)
 		if err != nil {
 			return c.SendStatus(500)
 		}
